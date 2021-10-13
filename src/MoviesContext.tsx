@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import { api } from "./services/api";
 
 interface GenreResponseProps {
@@ -42,13 +42,13 @@ export function MoviesProvider({ children }: MoviesProviderProps) {
     const [movies, setMovies] = useState<MovieProps[]>([]);
     const [selectedGenre, setSelectedGenre] = useState<GenreResponseProps>({} as GenreResponseProps);
 
-    useEffect(() => {
+    const loadGenders = useCallback(() => {
         api.get<GenreResponseProps[]>('genres').then(response => {
             setGenres(response.data);
         });
     }, []);
 
-    useEffect(() => {
+    const loadMovies = useCallback(() => {
         api.get<MovieProps[]>(`movies/?Genre_id=${selectedGenreId}`).then(response => {
             setMovies(response.data);
         });
@@ -58,9 +58,9 @@ export function MoviesProvider({ children }: MoviesProviderProps) {
         })
     }, [selectedGenreId]);
 
-    function handleClickButton(id: number) {
+    const handleClickButton = useCallback((id: number) => {
         setSelectedGenreId(id);
-    }
+     }, [])
     return (
         <MoviesContext.Provider value={{ genres, selectedGenre, selectedGenreId, handleClickButton, movies }}>
             {children}
